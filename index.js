@@ -14,7 +14,10 @@ const PORT = process.env.PORT || 3010;
 app.use(bodyParser.json());
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://image.theowpc.com"],
+    origin: [
+      "http://localhost:5173",
+      "https://myailserver.onrender.com/webhook",
+    ],
     credentials: true,
   })
 );

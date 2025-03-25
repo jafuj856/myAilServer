@@ -1,0 +1,25 @@
+{
+  "name": "mychatbot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@gradio/client": "^1.13.1",
+    "@huggingface/inference": "^3.6.1",
+    "axios": "^1.8.4",
+    "body-parser": "^1.20.3",
+    "dotenv": "^16.4.7",
+    "eventsource": "^3.0.5",
+    "express": "^4.21.2",
+    "nodemon": "^3.1.9",
+    "openai": "^4.88.0"
+  }
+}

@@ -13,15 +13,14 @@ const PORT = process.env.PORT || 3010;
 // Middleware
 app.use(bodyParser.json());
 app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",
-      "https://myailserver.onrender.com/webhook",
-      "https://my-ai-react-app-ycm9.vercel.app",
-    ],
-    credentials: true,
-  })
-);
+    cors({
+        origin: [
+            "http://localhost:5173",
+            "https://myailserver.onrender.com",
+            "https://my-ai-react-app-ycm9.vercel.app",
+        ],
+        credentials: true,
+    }))
 
 // Centralized error response function
 const sendErrorResponse = (res, statusCode, message, error = null) => {

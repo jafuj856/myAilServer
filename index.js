@@ -17,7 +17,7 @@ app.use(
     origin: [
       "http://localhost:5173",
       "https://myailserver.onrender.com/webhook",
-      "https://my-ai-react-app-ycm9.vercel.app/",
+      "https://my-ai-react-app-ycm9.vercel.app",
     ],
     credentials: true,
   })

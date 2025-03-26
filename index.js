@@ -14,11 +14,12 @@ const PORT = process.env.PORT || 3010;
 app.use(bodyParser.json());
 app.use(
     cors({
-        origin: [
-            "http://localhost:5173",
-            "https://myailserver.onrender.com",
-            "https://my-ai-react-app-ycm9.vercel.app",
-        ],
+        origin:'*', 
+        //     [
+        //     "http://localhost:5173",
+        //     "https://myailserver.onrender.com",
+        //     "https://my-ai-react-app-ycm9.vercel.app",
+        // ],
         credentials: true,
     }))
 

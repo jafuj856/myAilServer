@@ -1,55 +1,97 @@
 import dotenv from "dotenv";
+import { PromptTemplate } from "@langchain/core/prompts";
+import axios from "axios";
+
 dotenv.config();
 const GRK_API_KY = process.env.GRK_API_KY;
-export const chatWithPersonalBot = async (userMessage) => {
-  console.log(GRK_API_KY);
-  const prompt = `
-You are a friendly and personal AI assistant that knows everything about Jafar.
 
-Jafar is a passionate MERN stack developer and React team lead with over 3 years of experience. He specializes in building scalable web applications using MongoDB, Express, React, and Node.js. He is also skilled in Flutter, MySQL, and MongoDB.
-
-Jafar has led multiple projects in frontend and backend development, focusing on clean code, performance, and user experience. He is deeply interested in AI and is currently exploring chatbot development and AI integrations.
-
-His key achievements include:
-- Leading a team to deliver a trading bot platform using Alpaca API with real-time stock data.
-- Developing AI-powered resume and job application assistants.
-- Building voice and face recognition apps with React Native and face-api.js.
-
-Jafar values continuous learning, teamwork, and writing clean, maintainable code. When someone asks about him, his skills, work, or interests, respond warmly, intimately, and with pride.
-
-Always respond naturally, keeping the tone friendly and confident.
-`;
-  const response = await fetch(
-    "https://api.groq.com/openai/v1/chat/completions",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${GRK_API_KY}`,
-      },
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile", // your Groq model
-        messages: [
-          {
-            role: "system",
-            content: prompt,
-          },
-          {
-            role: "user",
-            content: userMessage,
-          },
-        ],
-        temperature: 0.7, // a bit creative & warm
-        max_tokens: 300,
-      }),
+class GroqLLM {
+  constructor(apiKey) {
+    if (!apiKey) {
+      throw new Error("❌ Missing Groq API Key! Please set GRK_API_KY in .env");
     }
-  );
+    this.apiKey = apiKey;
+  }
 
-  const data = await response.json();
-  console.log(data);
+  async call(prompt) {
+    try {
+      const response = await axios.post(
+        "https://api.groq.com/openai/v1/chat/completions",
+        {
+          model: "llama-3.3-70b-versatile",
+          messages: [{ role: "user", content: prompt }],
+          temperature: 0.7,
+          max_tokens: 500,
+        },
+        {
+          headers: { Authorization: `Bearer ${this.apiKey}` },
+        }
+      );
+      return response.data.choices?.[0]?.message?.content || "No response.";
+    } catch (error) {
+      console.error(
+        "❌ Groq API Error:",
+        error.response?.data || error.message
+      );
+      return "⚠️ Sorry, I’m facing an issue. Please try again later.";
+    }
+  }
+}
 
-  return (
-    data?.choices?.[0]?.message?.content ||
-    "Sorry, I couldn't respond right now."
-  );
+const llm = new GroqLLM(GRK_API_KY);
+const supportedLangs = {
+  english: "en",
+  malayalam: "ml",
+  arabic: "ar",
+};
+
+const jafarBio = `
+Jafar is a passionate MERN stack developer and React team lead with over 3 years of experience.
+- Skilled in MongoDB, Express, React, Node.js, Flutter, MySQL, and MongoDB.
+- Led projects like a   AI-powered resume/job assistants, and voice/face recognition apps.
+- Values teamwork, clean code, and AI integrations.
+Currently focusing on Artificial Intelligence and chatbot development. his contact information:
+- Email:jafuj856@gmail.com
+- LinkedIn: https://www.linkedin.com/in/jafar-parayil-56481216b
+- GitHub: https://github.com/jafuj856
+- phone: +91 9633537712
+`;
+
+export const chatWithPersonalBot = async (userMessage, lang = "en") => {
+  if (!supportedLangs[lang]) lang = "en";
+
+  try {
+    const template = new PromptTemplate({
+      inputVariables: ["question"],
+      template: `
+You are Jafar’s personal AI assistant and profasional . 
+Always reply in **${supportedLangs[lang]}** only.
+
+- If the user asks about Jafar (directly or indirectly), introduce him using this info:
+${jafarBio}
+
+👉 Make the intro sound natural, engaging, and not robotic.
+👉 Do NOT say "I am Jafar". You are his assistant introducing him.
+
+- If the user asks a general question, answer clearly and briefly.
+-if user asks about jafar then provide contact information with his indtroduction and higlight contact information in first.
+- if user asks in arabic his currect word جعفر.
+- if user asks in malayalam his currect word ജാഫർ.
+- If it’s just chatting, respond in a friendly and engaging way.
+- Keep answers concise and pleasant.
+- After each reply, you may politely ask if they want to know more about Jafar.
+Question: {question}
+Answer:`,
+    });
+
+    const formattedPrompt = await template.format({ question: userMessage });
+    const result = await llm.call(formattedPrompt);
+    return await result;
+  } catch (error) {
+    console.error("❌ Bot Error:", error.message);
+    return await translateText(
+      "⚠️ Sorry, I’m facing some issues. Please chat with me later.",
+      lang
+    );
+  }
 };

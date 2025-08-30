@@ -105,21 +105,15 @@ async function getAIResponse(userId, userMessage) {
 }
 
 // ---------- Prtifolio chat bot setup --------------
+
 app.post("/chat", async (req, res) => {
   try {
-    const { message, sessionId } = req.body;
-    if (!message || !sessionId) {
-      return sendErrorResponse(res, 400, "Missing message or sessionId");
-    }
+    const { message, lang } = req.body;
+    if (!message) return sendErrorResponse(res, 400, "Missing message");
+    console.log(lang);
+    const aiResponse = await chatWithPersonalBot(message, lang);
 
-    // Get AI reply
-    const aiResponse = await chatWithPersonalBot(message);
-    console.log(aiResponse);
-
-    res.status(200).json({
-      success: true,
-      reply: aiResponse,
-    });
+    res.status(200).json({ success: true, reply: aiResponse });
   } catch (error) {
     sendErrorResponse(res, 500, "Error generating AI response", error);
   }
